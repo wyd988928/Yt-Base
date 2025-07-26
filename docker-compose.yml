@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: yt-base-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - yt-base-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: yt-base-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - yt-base-network
+
+  # Nacos注册中心
+  nacos:
+    image: nacos/nacos-server:v2.3.0
+    container_name: yt-base-nacos
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_DB_NAME: nacos
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: 123456
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    depends_on:
+      - mysql
+    networks:
+      - yt-base-network
+
+  # MinIO对象存储
+  minio:
+    image: minio/minio:latest
+    container_name: yt-base-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - yt-base-network
+
+  # API网关
+  gateway:
+    build:
+      context: ./yt-base-gateway
+      dockerfile: Dockerfile
+    container_name: yt-base-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+    depends_on:
+      - nacos
+      - redis
+    networks:
+      - yt-base-network
+
+  # OCR服务
+  ocr-service:
+    build:
+      context: ./yt-base-ocr
+      dockerfile: Dockerfile
+    container_name: yt-base-ocr
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yt_base_ocr?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+      DUBBO_REGISTRY_ADDRESS: nacos://nacos:8848
+    depends_on:
+      - mysql
+      - redis
+      - nacos
+    networks:
+      - yt-base-network
+
+  # 推送服务
+  push-service:
+    build:
+      context: ./yt-base-push
+      dockerfile: Dockerfile
+    container_name: yt-base-push
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yt_base_push?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+      DUBBO_REGISTRY_ADDRESS: nacos://nacos:8848
+    depends_on:
+      - mysql
+      - redis
+      - nacos
+    networks:
+      - yt-base-network
+
+  # 存储服务
+  storage-service:
+    build:
+      context: ./yt-base-storage
+      dockerfile: Dockerfile
+    container_name: yt-base-storage
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yt_base_storage?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+      DUBBO_REGISTRY_ADDRESS: nacos://nacos:8848
+      MINIO_ENDPOINT: http://minio:9000
+    depends_on:
+      - mysql
+      - redis
+      - nacos
+      - minio
+    networks:
+      - yt-base-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  minio_data:
+
+networks:
+  yt-base-network:
+    driver: bridge
