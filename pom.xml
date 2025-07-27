@@ -17,14 +17,13 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
-        <spring-boot.version>3.2.0</spring-boot.version>
-        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <spring-boot.version>3.0.2</spring-boot.version>
+        <spring-cloud.version>2022.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
-        <dubbo.version>3.2.8</dubbo.version>
+        <dubbo.version>3.3.0</dubbo.version>
         <nacos.version>2.3.0</nacos.version>
         <mysql.version>8.0.33</mysql.version>
         <mybatis-plus.version>3.5.4</mybatis-plus.version>
-        <redis.version>3.2.0</redis.version>
         <fastjson.version>2.0.43</fastjson.version>
         <hutool.version>5.8.22</hutool.version>
         <lombok.version>1.18.30</lombok.version>
@@ -103,7 +102,6 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-redis</artifactId>
-                <version>${redis.version}</version>
             </dependency>
             
             <!-- FastJSON -->
