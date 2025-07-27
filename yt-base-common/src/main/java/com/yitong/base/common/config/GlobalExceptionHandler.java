@@ -10,10 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.Set;
-
 /**
  * 全局异常处理器
  */
@@ -49,17 +45,6 @@ public class GlobalExceptionHandler {
         log.error("参数绑定异常：{}", e.getMessage(), e);
         FieldError fieldError = e.getBindingResult().getFieldError();
         String message = fieldError != null ? fieldError.getDefaultMessage() : "参数绑定失败";
-        return Result.error(ResultCode.PARAM_ERROR.getCode(), message);
-    }
-    
-    /**
-     * 约束违反异常处理
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    public Result<Void> handleConstraintViolationException(ConstraintViolationException e) {
-        log.error("约束违反异常：{}", e.getMessage(), e);
-        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        String message = violations.isEmpty() ? "参数校验失败" : violations.iterator().next().getMessage();
         return Result.error(ResultCode.PARAM_ERROR.getCode(), message);
     }
     
