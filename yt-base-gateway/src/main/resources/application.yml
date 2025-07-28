@@ -9,11 +9,15 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+        enabled: false  # 禁用Nacos服务发现
     gateway:
+      discovery:
+        locator:
+          enabled: false  # 禁用服务发现路由
       routes:
-        # OCR服务路由
+        # OCR服务路由 - 使用直接URL而不是负载均衡
         - id: yt-base-ocr
-          uri: lb://yt-base-ocr
+          uri: http://localhost:8081
           predicates:
             - Path=/api/ocr/**
           filters:
@@ -21,7 +25,7 @@ spring:
         
         # 推送服务路由
         - id: yt-base-push
-          uri: lb://yt-base-push
+          uri: http://localhost:8082
           predicates:
             - Path=/api/push/**
           filters:
@@ -29,7 +33,7 @@ spring:
         
         # 对象存储服务路由
         - id: yt-base-storage
-          uri: lb://yt-base-storage
+          uri: http://localhost:8083
           predicates:
             - Path=/api/storage/**
           filters:
@@ -47,17 +51,18 @@ spring:
       # 默认过滤器
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 3
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 3
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
 
 # 日志配置
 logging:

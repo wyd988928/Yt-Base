@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 import java.util.UUID;
 
 /**
@@ -62,7 +62,7 @@ public class PushServiceImpl implements PushService {
                 for (EmailSendRequest.EmailAttachment attachment : request.getAttachments()) {
                     byte[] fileBytes = java.util.Base64.getDecoder().decode(attachment.getFileContent());
                     helper.addAttachment(attachment.getFileName(), 
-                            new javax.activation.DataSource() {
+                            new jakarta.activation.DataSource() {
                                 @Override
                                 public java.io.InputStream getInputStream() {
                                     return new java.io.ByteArrayInputStream(fileBytes);
