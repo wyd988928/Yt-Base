@@ -1,0 +1,6 @@
+# Nacos配置
+nacos:
+  address: 192.168.110.112:8848
+  namespace: 8bab8359-d8ab-44e2-9400-862f93a8a1c2
+  username: nacos
+  password: nacos

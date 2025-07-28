@@ -2,7 +2,7 @@
 server:
   port: 8082
   servlet:
-    context-path: /push
+    context-path: /base-api/push
 
 spring:
   application:
@@ -12,17 +12,18 @@ spring:
     url: jdbc:mysql://localhost:3306/yt_base_push?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 1
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 1
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
   mail:
     host: smtp.qq.com
     port: 587

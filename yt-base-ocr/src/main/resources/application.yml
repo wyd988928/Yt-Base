@@ -2,28 +2,40 @@
 server:
   port: 8081
   servlet:
-    context-path: /ocr
+    context-path: /base-api/ocr
 
 spring:
   application:
     name: yt-base-ocr
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.address}
+        namespace: ${nacos.namespace}
+        username: ${nacos.username}
+        password: ${nacos.password}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yt_base_ocr?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 0
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-
+    url: jdbc:mysql://192.168.110.112:3306/yt_base?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: dev
+    password: dev@2024
+  data:
+    redis:
+      sentinel:
+        master: mymaster
+        password: SenTinel@pwd
+        nodes:
+        - 192.168.110.205:26380
+        - 192.168.110.206:26380
+        - 192.168.110.207:26380
+      password: SenTinel@pwd
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
 # MyBatis Plus配置
 mybatis-plus:
   configuration:
@@ -44,7 +56,9 @@ dubbo:
     name: dubbo
     port: 20881
   registry:
-    address: nacos://localhost:8848
+    address: nacos://${nacos.address}?username=${nacos.username}&password=${nacos.password}
+    parameters:
+      namespace: ${nacos.namespace}
   consumer:
     timeout: 3000
     retries: 0
@@ -52,12 +66,22 @@ dubbo:
     timeout: 3000
     retries: 0
 
-# 百度OCR配置
-baidu:
-  ocr:
+# OCR配置
+ocr:
+  # 默认OCR提供商 (baidu, aws)
+  provider: baidu
+  
+  # 百度OCR配置
+  baidu:
     app-id: your-app-id
     api-key: your-api-key
     secret-key: your-secret-key
+  
+  # AWS OCR配置
+  aws:
+    access-key: your-access-key
+    secret-key: your-secret-key
+    region: us-east-1
 
 # 日志配置
 logging:
