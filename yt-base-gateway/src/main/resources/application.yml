@@ -8,16 +8,15 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: localhost:8848
-        enabled: false  # 禁用Nacos服务发现
+        server-addr: 192.168.110.121:8848
+        namespace: 8bab8359-d8ab-44e2-9400-862f93a8a1c2
+        username: nacos
+        password: zqzx12138
     gateway:
-      discovery:
-        locator:
-          enabled: false  # 禁用服务发现路由
       routes:
         # OCR服务路由 - 使用直接URL而不是负载均衡
         - id: yt-base-ocr
-          uri: http://localhost:8081
+          uri: lb://yt-base-ocr
           predicates:
             - Path=/api/ocr/**
           filters:
@@ -25,7 +24,7 @@ spring:
         
         # 推送服务路由
         - id: yt-base-push
-          uri: http://localhost:8082
+          uri: lb://yt-base-push
           predicates:
             - Path=/api/push/**
           filters:
@@ -33,7 +32,7 @@ spring:
         
         # 对象存储服务路由
         - id: yt-base-storage
-          uri: http://localhost:8083
+          uri: lb://yt-base-storage
           predicates:
             - Path=/api/storage/**
           filters:
@@ -53,10 +52,15 @@ spring:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 3
+      sentinel:
+        master: mymaster
+        password: SenTinel@pwd
+        nodes:
+        - 192.168.110.205:26380
+        - 192.168.110.206:26380
+        - 192.168.110.207:26380
+      password: SenTinel@pwd
+      database: 0
       timeout: 3000ms
       lettuce:
         pool:

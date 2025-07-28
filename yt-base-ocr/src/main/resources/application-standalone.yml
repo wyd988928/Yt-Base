@@ -1,0 +1,48 @@
+# OCR服务独立运行配置
+server:
+  port: 8081
+  servlet:
+    context-path: /ocr
+
+spring:
+  application:
+    name: yt-base-ocr
+  # 禁用数据库配置用于测试
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+
+# OCR配置
+ocr:
+  # 默认OCR提供商 (baidu, aws)
+  provider: baidu
+  
+  # 百度OCR配置
+  baidu:
+    app-id: test-app-id
+    api-key: test-api-key
+    secret-key: test-secret-key
+  
+  # AWS OCR配置
+  aws:
+    access-key: test-access-key
+    secret-key: test-secret-key
+    region: us-east-1
+
+# 禁用Dubbo配置
+dubbo:
+  application:
+    name: ${spring.application.name}
+  registry:
+    address: N/A
+  protocol:
+    name: dubbo
+    port: -1
+  consumer:
+    timeout: 3000
+    retries: 0
+  provider:
+    timeout: 3000
+    retries: 0
