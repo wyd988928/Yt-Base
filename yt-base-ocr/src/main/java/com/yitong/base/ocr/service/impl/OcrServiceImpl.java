@@ -29,7 +29,7 @@ public class OcrServiceImpl implements OcrService {
     @Override
     public OcrRecognitionResponse recognize(OcrRecognitionRequest request) {
         try {
-            byte[] imageBytes = Base64.getDecoder().decode(request.getImageBase64());
+            byte[] imageBytes = Base64.getDecoder().decode(request.getParse());
             OcrStrategy strategy = ocrStrategyFactory.getDefaultStrategy();
             
             log.info("使用OCR提供商: {} 进行识别，类型: {}", 
