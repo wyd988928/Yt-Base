@@ -70,7 +70,7 @@ dubbo:
 # OCR配置
 ocr:
   # 默认OCR提供商 (baidu, aws, local)
-  provider: baidu
+  provider: aws
   
   # 百度OCR配置
   baidu:
@@ -80,14 +80,14 @@ ocr:
   
   # AWS OCR配置
   aws:
-    access-key: your-access-key
-    secret-key: your-secret-key
-    region: us-east-1
+    access-key: 1111
+    secret-key: 2222
+    region: ap-southeast-1
   
   # 本地自建OCR配置
   local:
-    enabled: false
-    endpoint: http://localhost:8082
+    enabled: true
+    endpoint: http://192.168.110.233:8080/ocr
     api-key: your-local-api-key
     timeout: 30000
 

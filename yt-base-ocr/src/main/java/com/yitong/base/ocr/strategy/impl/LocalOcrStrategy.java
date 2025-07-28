@@ -101,7 +101,7 @@ public class LocalOcrStrategy implements OcrStrategy {
             
             // 发送请求
             ResponseEntity<String> response = restTemplate.postForEntity(
-                endpoint + "/recognize", entity, String.class);
+                endpoint , entity, String.class);
             
             long duration = System.currentTimeMillis() - startTime;
             

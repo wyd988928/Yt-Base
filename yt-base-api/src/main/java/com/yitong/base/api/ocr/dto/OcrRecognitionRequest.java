@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
+import cn.hutool.core.util.StrUtil;
+
 /**
  * OCR识别请求DTO
  */
@@ -35,4 +37,11 @@ public class OcrRecognitionRequest implements Serializable {
      * 识别语言：zh-中文，en-英文
      */
     private String language = "en";
+
+    public String getParse(){
+        if(StrUtil.isNotEmpty(parse) && parse.contains("base64,")){
+            return parse.substring(parse.indexOf("base64,") + 7);
+        }
+        return parse;
+    }
 }

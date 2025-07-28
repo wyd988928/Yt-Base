@@ -5,6 +5,16 @@ import com.yitong.base.common.exception.BusinessException;
 import com.yitong.base.common.result.ResultCode;
 import com.yitong.base.ocr.strategy.OcrStrategy;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.textract.TextractClient;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.core.retry.RetryMode;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.textract.model.BlockType;
+import software.amazon.awssdk.services.textract.model.DetectDocumentTextRequest;
+import software.amazon.awssdk.services.textract.model.DetectDocumentTextResponse;
+import software.amazon.awssdk.services.textract.model.Document;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +40,8 @@ public class AwsOcrStrategy implements OcrStrategy {
     private String region;
     
     private boolean initialized = false;
+
+    private TextractClient textractClient;
     
     @Override
     public String getStrategyName() {
@@ -41,6 +53,11 @@ public class AwsOcrStrategy implements OcrStrategy {
     public void initialize() {
         if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty()) {
             // 这里应该初始化AWS Textract客户端
+            textractClient = TextractClient.builder()
+                .region(Region.of(region))
+                .credentialsProvider(() -> AwsBasicCredentials.create(accessKey, secretKey))
+                .overrideConfiguration(b -> b.retryPolicy(RetryMode.STANDARD))
+                .build();
             // 由于需要AWS SDK依赖，这里先做模拟实现
             initialized = true;
             log.info("AWS OCR客户端初始化成功，区域: {}", region);
@@ -119,12 +136,13 @@ public class AwsOcrStrategy implements OcrStrategy {
         long startTime = System.currentTimeMillis();
         
         try {
-            // 模拟AWS Textract通用文字识别
-            OcrRecognitionResponse response = createMockResponse(
-                "AWS通用文字识别结果\n这是一段示例文本\n用于演示AWS OCR功能",
-                System.currentTimeMillis() - startTime
-            );
-            
+            SdkBytes bytes = SdkBytes.fromByteArray(imageBytes);
+            // 构建请求对象
+            DetectDocumentTextRequest request = DetectDocumentTextRequest.builder()
+                .document(Document.builder().bytes(bytes).build())
+                .build();
+            DetectDocumentTextResponse ret = textractClient.detectDocumentText(request);
+            OcrRecognitionResponse response = parseOcrResult(ret, System.currentTimeMillis() - startTime);
             log.info("AWS OCR通用文字识别完成，耗时: {}ms", response.getDuration());
             return response;
             
@@ -132,6 +150,52 @@ public class AwsOcrStrategy implements OcrStrategy {
             log.error("AWS OCR通用文字识别失败", e);
             throw new BusinessException(ResultCode.OCR_RECOGNITION_FAILED);
         }
+    }
+
+    /**
+     * 解析OCR识别结果
+     * @param responseBody 响应体
+     * @param duration 耗时
+     * @return OCR识别响应
+     */
+    private OcrRecognitionResponse parseOcrResult(DetectDocumentTextResponse responseBody, long duration) {
+        OcrRecognitionResponse response = new OcrRecognitionResponse();
+        response.setDuration(duration);
+        
+        try {
+            if (!responseBody.sdkHttpResponse().isSuccessful()) {
+                // 处理错误响应
+                String errorMsg = responseBody.sdkHttpResponse().statusText().orElse("未知异常");
+                log.error("aws OCR服务返回错误: {}", errorMsg);
+                response.setSuccess(false);
+                response.setMessage(errorMsg);
+            } else {
+                // 处理成功响应
+                response.setSuccess(true);
+                response.setMessage("识别成功");
+                
+                // 提取识别文本
+                if (responseBody.hasBlocks()) {
+                    StringBuilder textBuilder = new StringBuilder();
+                    responseBody.blocks().forEach(block -> {
+                        if (block.blockType().equals(BlockType.LINE)) {
+                            textBuilder.append(block.text()).append(" ");
+                        }
+                    });
+                    response.setText(textBuilder.toString().trim());
+                }
+                
+                // 设置原始结果
+                response.setRawResult(null);
+            }
+            
+        } catch (Exception e) {
+            log.error("解析本地OCR结果失败", e);
+            response.setSuccess(false);
+            response.setMessage("解析识别结果失败: " + e.getMessage());
+        }
+        
+        return response;
     }
     
     private OcrRecognitionResponse createMockResponse(String text, long duration) {

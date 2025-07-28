@@ -70,6 +70,12 @@
             <artifactId>java-sdk</artifactId>
             <version>4.16.8</version>
         </dependency>
+        <!-- AWS OCR依赖 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>textract</artifactId>
+            <version>2.20.0</version>
+        </dependency>
         
         <dependency>
             <groupId>org.springframework.boot</groupId>

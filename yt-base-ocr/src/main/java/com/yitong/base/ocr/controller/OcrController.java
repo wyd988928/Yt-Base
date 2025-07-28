@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * OCR控制器
  */
 @RestController
-@RequestMapping("/api/ocr")
+@RequestMapping("/recognize")
 @RequiredArgsConstructor
 public class OcrController {
     
@@ -21,7 +21,7 @@ public class OcrController {
     /**
      * 文字识别
      */
-    @PostMapping("/recognize")
+    @PostMapping("/text")
     public Result<OcrRecognitionResponse> recognize(@RequestBody @Validated OcrRecognitionRequest request) {
         OcrRecognitionResponse response = ocrService.recognize(request);
         return Result.success(response);
@@ -30,36 +30,36 @@ public class OcrController {
     /**
      * 身份证识别
      */
-    @PostMapping("/recognize/idcard")
-    public Result<OcrRecognitionResponse> recognizeIdCard(@RequestParam String imageBase64) {
-        OcrRecognitionResponse response = ocrService.recognizeIdCard(imageBase64);
+    @PostMapping("/idcard")
+    public Result<OcrRecognitionResponse> recognizeIdCard(@RequestBody @Validated OcrRecognitionRequest request) {
+        OcrRecognitionResponse response = ocrService.recognizeIdCard(request.getParse());
         return Result.success(response);
     }
     
     /**
      * 营业执照识别
      */
-    @PostMapping("/recognize/business-license")
-    public Result<OcrRecognitionResponse> recognizeBusinessLicense(@RequestParam String imageBase64) {
-        OcrRecognitionResponse response = ocrService.recognizeBusinessLicense(imageBase64);
+    @PostMapping("/business-license")
+    public Result<OcrRecognitionResponse> recognizeBusinessLicense(@RequestBody @Validated OcrRecognitionRequest request) {
+        OcrRecognitionResponse response = ocrService.recognizeBusinessLicense(request.getParse());
         return Result.success(response);
     }
     
     /**
      * 银行卡识别
      */
-    @PostMapping("/recognize/bank-card")
-    public Result<OcrRecognitionResponse> recognizeBankCard(@RequestParam String imageBase64) {
-        OcrRecognitionResponse response = ocrService.recognizeBankCard(imageBase64);
+    @PostMapping("/bank-card")
+    public Result<OcrRecognitionResponse> recognizeBankCard(@RequestBody @Validated OcrRecognitionRequest request) {
+        OcrRecognitionResponse response = ocrService.recognizeBankCard(request.getParse());
         return Result.success(response);
     }
     
     /**
      * 通用文字识别
      */
-    @PostMapping("/recognize/general")
-    public Result<OcrRecognitionResponse> recognizeGeneral(@RequestParam String imageBase64) {
-        OcrRecognitionResponse response = ocrService.recognizeGeneral(imageBase64);
+    @PostMapping("/general")
+    public Result<OcrRecognitionResponse> recognizeGeneral(@RequestBody @Validated OcrRecognitionRequest request) {
+        OcrRecognitionResponse response = ocrService.recognizeGeneral(request.getParse());
         return Result.success(response);
     }
 }
