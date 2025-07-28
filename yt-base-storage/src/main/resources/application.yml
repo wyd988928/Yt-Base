@@ -2,7 +2,7 @@
 server:
   port: 8083
   servlet:
-    context-path: /storage
+    context-path: /base-api/storage
 
 spring:
   application:
@@ -12,17 +12,18 @@ spring:
     url: jdbc:mysql://localhost:3306/yt_base_storage?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
-  redis:
-    host: localhost
-    port: 6379
-    password: 
-    database: 2
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 2
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
   servlet:
     multipart:
       max-file-size: 100MB

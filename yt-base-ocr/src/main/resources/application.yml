@@ -2,11 +2,18 @@
 server:
   port: 8081
   servlet:
-    context-path: /ocr
+    context-path: /base-api/ocr
 
 spring:
   application:
     name: yt-base-ocr
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.address}
+        namespace: ${nacos.namespace}
+        username: ${nacos.username}
+        password: ${nacos.password}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.110.112:3306/yt_base?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
@@ -29,7 +36,6 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-
 # MyBatis Plus配置
 mybatis-plus:
   configuration:
@@ -51,6 +57,8 @@ dubbo:
     port: 20881
   registry:
     address: nacos://${nacos.address}?username=${nacos.username}&password=${nacos.password}
+    parameters:
+      namespace: ${nacos.namespace}
   consumer:
     timeout: 3000
     retries: 0

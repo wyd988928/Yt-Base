@@ -14,11 +14,11 @@ spring:
         password: zqzx12138
     gateway:
       routes:
-        # OCR服务路由 - 使用直接URL而不是负载均衡
+        # OCR服务路由
         - id: yt-base-ocr
           uri: lb://yt-base-ocr
           predicates:
-            - Path=/api/ocr/**
+            - Path=/base-api/ocr/**
           filters:
             - StripPrefix=1
         
@@ -26,7 +26,7 @@ spring:
         - id: yt-base-push
           uri: lb://yt-base-push
           predicates:
-            - Path=/api/push/**
+            - Path=/base-api/push/**
           filters:
             - StripPrefix=1
         
@@ -34,7 +34,7 @@ spring:
         - id: yt-base-storage
           uri: lb://yt-base-storage
           predicates:
-            - Path=/api/storage/**
+            - Path=/base-api/storage/**
           filters:
             - StripPrefix=1
       
