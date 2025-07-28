@@ -1,6 +1,7 @@
 package com.yitong.base.ocr.strategy.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.yitong.base.api.ocr.dto.OcrRecognitionRequest;
 import com.yitong.base.api.ocr.dto.OcrRecognitionResponse;
@@ -156,9 +157,9 @@ public class LocalOcrStrategy implements OcrStrategy {
         try {
             JSONObject result = JSON.parseObject(responseBody);
             
-            if (result.containsKey("error")) {
+            if (result.getInteger("errorCode") != 0) {
                 // 处理错误响应
-                String errorMsg = result.getString("error");
+                String errorMsg = result.getString("errorMsg");
                 log.error("本地OCR服务返回错误: {}", errorMsg);
                 response.setSuccess(false);
                 response.setMessage(errorMsg);
@@ -168,27 +169,17 @@ public class LocalOcrStrategy implements OcrStrategy {
                 response.setMessage("识别成功");
                 
                 // 提取识别文本
-                if (result.containsKey("text")) {
-                    response.setText(result.getString("text"));
-                } else if (result.containsKey("words")) {
-                    // 如果返回的是词组数组，拼接成完整文本
+                JSONArray resultArray = (JSONArray)result.getByPath("result.texts");
+                if (resultArray != null) {
                     StringBuilder textBuilder = new StringBuilder();
-                    result.getJSONArray("words").forEach(word -> {
-                        if (word instanceof JSONObject) {
-                            JSONObject wordObj = (JSONObject) word;
-                            if (wordObj.containsKey("text")) {
-                                textBuilder.append(wordObj.getString("text")).append(" ");
-                            }
+                    resultArray.forEach(item -> {
+                        JSONObject itemObj = (JSONObject) item;
+                        String text = itemObj.getString("text");
+                        if (text != null) {
+                            textBuilder.append(text).append(" ");
                         }
                     });
                     response.setText(textBuilder.toString().trim());
-                }
-                
-                // 设置置信度
-                if (result.containsKey("confidence")) {
-                    response.setConfidence(result.getDoubleValue("confidence"));
-                } else {
-                    response.setConfidence(0.95); // 默认置信度
                 }
                 
                 // 设置原始结果
