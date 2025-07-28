@@ -8,6 +8,7 @@ OCR服务模块支持多个第三方OCR服务提供商，采用策略模式设�
 
 - **百度OCR** (baidu) - 百度智能云OCR服务
 - **AWS OCR** (aws) - Amazon Textract服务
+- **本地OCR** (local) - 本地自建OCR服务
 
 ## 配置说明
 
@@ -17,7 +18,7 @@ OCR服务模块支持多个第三方OCR服务提供商，采用策略模式设�
 
 ```yaml
 ocr:
-  # 默认OCR提供商 (baidu, aws)
+  # 默认OCR提供商 (baidu, aws, local)
   provider: baidu
   
   # 百度OCR配置
@@ -31,6 +32,13 @@ ocr:
     access-key: your-access-key
     secret-key: your-secret-key
     region: us-east-1
+  
+  # 本地自建OCR配置
+  local:
+    enabled: false
+    endpoint: http://localhost:8082
+    api-key: your-local-api-key
+    timeout: 30000
 ```
 
 ### 多套部署配置
@@ -57,6 +65,18 @@ ocr:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     region: us-west-2
+```
+
+#### 开发环境 - 使用本地OCR
+```yaml
+# application-dev.yml
+ocr:
+  provider: local
+  local:
+    enabled: true
+    endpoint: ${LOCAL_OCR_ENDPOINT:http://localhost:8082}
+    api-key: ${LOCAL_OCR_API_KEY:dev-api-key}
+    timeout: ${LOCAL_OCR_TIMEOUT:30000}
 ```
 
 ## API接口

@@ -33,6 +33,21 @@ public class OcrRecognitionResponse implements Serializable {
      */
     private Long duration;
     
+    /**
+     * 识别是否成功
+     */
+    private Boolean success;
+    
+    /**
+     * 响应消息
+     */
+    private String message;
+    
+    /**
+     * 原始识别结果
+     */
+    private String rawResult;
+    
     @Data
     public static class OcrTextBlock implements Serializable {
         
