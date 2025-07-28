@@ -2,7 +2,7 @@
 server:
   port: 8082
   servlet:
-    context-path: /base-api/push
+    context-path: /push
 
 spring:
   application:
